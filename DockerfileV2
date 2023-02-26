@@ -1,0 +1,17 @@
+
+FROM openjdk:17-jdk-slim
+#FROM eclipse-temurin:17-jdk-alpine
+
+# MAINTAINER is deprecated
+LABEL name="Palash Kosta"
+LABEL email="kosta.palash@gmail.com"
+LABEL version="2.0"
+LABEL description="sample docker image file"
+
+ARG DEPENDENCY=target/dependency
+
+COPY ${DEPENDENCY}/BOOT-INF/lib /app/lib
+COPY ${DEPENDENCY}/META-INF /app/META-INF
+COPY ${DEPENDENCY}/BOOT-INF/classes /app
+
+ENTRYPOINT ["java","-cp","app:app/lib/*", "com.pal.sampledocker.SampledockerApplication"]

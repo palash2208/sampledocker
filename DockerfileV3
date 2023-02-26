@@ -1,0 +1,27 @@
+
+FROM openjdk:17-jdk-slim as build
+#FROM eclipse-temurin:17-jdk-alpine
+WORKDIR /workspace/app
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+COPY src src
+
+RUN ./mvnw install -DskipTests
+RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
+
+# MAINTAINER is deprecated
+LABEL name="Palash Kosta"
+LABEL email="kosta.palash@gmail.com"
+LABEL version="2.0"
+LABEL description="sample docker image file"
+
+FROM openjdk:17-jdk-slim
+
+ARG DEPENDENCY=/workspace/app/target/dependency
+
+COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
+COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
+COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
+
+ENTRYPOINT ["java","-cp","app:app/lib/*", "com.pal.sampledocker.SampledockerApplication"]
